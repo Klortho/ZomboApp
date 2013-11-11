@@ -18,5 +18,28 @@
    </p>
  -->
    <canvas id='canvas' width='1000' height='1000'></canvas>
+   
+   <h2>Make a new one</h2>
+   <form action='maze.html' method='GET'>
+     <table>
+       <tr>
+         <td><label for='r'>Rows:</label></td>
+         <td><input id='r' name='r' type='text' value='20' /></td>
+       </tr>
+       <tr>
+         <td><label for='c'>Columns:</label></td>
+         <td><input id='c' name='c' type='text' value='20' /></td>
+       </tr>
+       <tr>
+         <td><label for='wt'>Wall thickness:</label></td>
+         <td><input id='wt' name='wt' type='text' value='6' /></td>
+       </tr>
+       <tr>
+         <td><label for='clr'>Color:</label></td>
+         <td><input id='clr' name='clr' type='text' value='red' /></td>
+       </tr>
+     </table>
+     <input type='submit'/>
+   </form>
   </body>
 </html>

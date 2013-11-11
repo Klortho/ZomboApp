@@ -1,4 +1,17 @@
 (function() {
+    var url_params;
+    (window.onpopstate = function () {
+        var match,
+            pl     = /\+/g,  // Regex for replacing addition symbol with a space
+            search = /([^&=]+)=?([^&]*)/g,
+            decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+            query  = window.location.search.substring(1);
+
+        url_params = {};
+        while (match = search.exec(query))
+           url_params[decode(match[1])] = decode(match[2]);
+    })();
+
     // Canvas context
     var ctx;
 
@@ -6,7 +19,7 @@
     var math_problem = function() {
         var problem = (Math.floor((Math.random() * 6))) + " + " +
                       (Math.floor((Math.random() * 6)));
-        console.info(problem);
+        //console.info(problem);
         $('#question').text(problem);
     };
 
@@ -19,11 +32,21 @@
         }
     }
 
+    var canvas_width = 1000,
+        canvas_height = 1000;
+
+    var num_rows = url_params.r - 0,
+        num_cols = url_params.c - 0,
+        wall_thickness = url_params.wt - 0,
+        color = url_params.clr;
+
     var maze = {
-        num_rows: 5,
-        num_cols: 5,
-        cell_width: 100,
-        cell_height: 100,
+        num_rows: num_rows,
+        num_cols: num_cols,
+        wall_thickness: wall_thickness,
+        color: color,
+        cell_width: (canvas_width - wall_thickness) / num_cols,
+        cell_height: (canvas_height - wall_thickness) / num_rows,
         cells: [],   // 2d array of objects
         walls: []
     };
@@ -39,7 +62,7 @@
         }
     }
     function draw_wall(w) {
-        ctx.fillStyle = "rgb(200, 0, 0)";
+        ctx.fillStyle = maze.color;
         put_wall(w);
     }
     function erase_wall(w) {
@@ -47,11 +70,16 @@
         put_wall(w);
     }
     function put_wall(w) {
-        //console.info("wall " + wn);
-        var left = maze.cell_width * w.col;
-        var top = maze.cell_height * w.row;
-        var width  = w.orientation == "horizontal" ? maze.cell_width : 5;
-        var height = w.orientation == "horizontal" ? 5 : maze.cell_height;
+        var cw = maze.cell_width,
+            ch = maze.cell_height,
+            o = w.orientation,
+            wt = maze.wall_thickness;
+
+        var left = cw * w.col;
+        var top = ch * w.row;
+        var width  = o == "horizontal" ? cw + wt : wt;
+        var height = o == "horizontal" ? wt : ch + wt;
+        //console.info("filling " + left + ", " + top + ", " + width + ", " + height);
         ctx.fillRect(left, top, width, height);
     }
 
@@ -63,6 +91,11 @@
         var cells = maze.cells;
         var walls = maze.walls;
 
+        // Make the form sticky:
+        $('#r').val(num_rows);
+        $('#c').val(num_cols);
+        $('#wt').val(wall_thickness);
+        $('#clr').val(color);
 
         // First initialize the two-dimensional array of the cell objects
         for (var r = 0; r < num_rows; ++r) {
