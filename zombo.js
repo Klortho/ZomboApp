@@ -35,10 +35,10 @@
     var canvas_width = 1000,
         canvas_height = 1000;
 
-    var num_rows = url_params.r - 0,
-        num_cols = url_params.c - 0,
-        wall_thickness = url_params.wt - 0,
-        color = url_params.clr;
+    var num_rows = 'r' in url_params ? url_params.r - 0 : 20,
+        num_cols = 'c' in url_params ? url_params.c - 0 : 20,
+        wall_thickness = 'wt' in url_params ? url_params.wt - 0 : 10,
+        color = 'clr' in url_params ? url_params.clr : 'red';
 
     var maze = {
         num_rows: num_rows,
