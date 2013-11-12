@@ -12,23 +12,19 @@
            url_params[decode(match[1])] = decode(match[2]);
     })();
 
+    var use_fabric = false;
+
     // Canvas context
-    var ctx;
-
-    // Math flashcards
-    var math_problem = function() {
-        var problem = (Math.floor((Math.random() * 6))) + " + " +
-                      (Math.floor((Math.random() * 6)));
-        //console.info(problem);
-        $('#question').text(problem);
-    };
-
-
-
+    var canvas;
     function init_canvas() {
-        var canvas = document.getElementById('canvas');
-        if (canvas.getContext) {
-            ctx = canvas.getContext('2d');
+        if (use_fabric) {
+            canvas = new fabric.Canvas('canvas');
+        }
+        else {
+            var canvas_el = document.getElementById('canvas');
+            if (canvas_el.getContext) {
+                canvas = canvas_el.getContext('2d');
+            }
         }
     }
 
@@ -61,15 +57,14 @@
             }
         }
     }
+
     function draw_wall(w) {
-        ctx.fillStyle = maze.color;
-        put_wall(w);
+        put_wall(w, maze.color);
     }
     function erase_wall(w) {
-        ctx.fillStyle = "rgb(255, 255, 255)";
-        put_wall(w);
+        put_wall(w, "white");
     }
-    function put_wall(w) {
+    function put_wall(w, color) {
         var cw = maze.cell_width,
             ch = maze.cell_height,
             o = w.orientation,
@@ -79,8 +74,22 @@
         var top = ch * w.row;
         var width  = o == "horizontal" ? cw + wt : wt;
         var height = o == "horizontal" ? wt : ch + wt;
-        //console.info("filling " + left + ", " + top + ", " + width + ", " + height);
-        ctx.fillRect(left, top, width, height);
+
+        if (use_fabric) {
+            left += (o == "horizontal" ? (cw + wt) / 2 : wt / 2);
+            top += (o == "horizontal" ? wt / 2 : (cw + wt) / 2);
+            canvas.add(new fabric.Rect({
+                left: left,
+                top: top,
+                width: width,
+                height: height,
+                fill: color
+            }));
+        }
+        else {
+            canvas.fillStyle = color;
+            canvas.fillRect(left, top, width, height);
+        }
     }
 
 
