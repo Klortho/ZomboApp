@@ -22,6 +22,7 @@
     function init_canvas() {
         if (use_fabric) {
             canvas = new fabric.Canvas('canvas');
+            canvas.selection = false;
         }
         else {
             var canvas_el = document.getElementById('canvas');
@@ -82,6 +83,7 @@
             left += (o == "horizontal" ? (cw + wt) / 2 : wt / 2);
             top += (o == "horizontal" ? wt / 2 : (cw + wt) / 2);
             canvas.add(new fabric.Rect({
+                selectable: false,
                 left: left,
                 top: top,
                 width: width,
