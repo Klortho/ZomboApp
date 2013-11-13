@@ -15,12 +15,12 @@
            url_params[decode(match[1])] = decode(match[2]);
     })();
 
-    var use_fabric = 'use_fabric' in url_params ? url_params.use_fabric == 'true' : false;
+    var use = 'use' in url_params ? url_params.use : "native";
 
     // Canvas context
     var canvas;
     function init_canvas() {
-        if (use_fabric) {
+        if (use == 'fabric' || use == 'paths') {
             canvas = new fabric.Canvas('canvas');
             canvas.selection = false;
         }
@@ -51,6 +51,7 @@
         walls: []
     };
 
+    var fabric_path = '';
     function draw_maze() {
         var walls = maze.walls;
         var num_walls = walls.length;
@@ -59,6 +60,20 @@
             if (w.exists) {
                 draw_wall(w);
             }
+        }
+        if (use = 'paths') {
+            console.info(fabric_path);
+            var path = new fabric.Path(fabric_path);
+            path.set({
+                left: canvas_width / 2 + maze.cell_width / 2,
+                top: canvas_height / 2 + maze.cell_height / 2,
+                selectable: false,
+                fill: "none",
+                stroke: color,
+                strokeWidth: wall_thickness,
+                strokeLineCap: 'round'
+            });
+            canvas.add(path);
         }
     }
 
@@ -79,7 +94,7 @@
         var width  = o == "horizontal" ? cw + wt : wt;
         var height = o == "horizontal" ? wt : ch + wt;
 
-        if (use_fabric) {
+        if (use == 'fabric') {
             left += (o == "horizontal" ? (cw + wt) / 2 : wt / 2);
             top += (o == "horizontal" ? wt / 2 : (cw + wt) / 2);
             canvas.add(new fabric.Rect({
@@ -90,6 +105,11 @@
                 height: height,
                 fill: color
             }));
+        }
+        else if (use == 'paths') {
+            fabric_path += 'M ' + left + ' ' + top + ' ' +
+                'l ' + (o == 'horizontal' ? cw : 0) + ' ' +
+                       (o == 'horizontal' ? 0 : cw) + ' ';
         }
         else {
             canvas.fillStyle = color;

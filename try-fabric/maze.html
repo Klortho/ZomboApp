@@ -12,18 +12,21 @@
   </head>
   <body>
     <h1>Try fabric.js</h1>
-    <p>Use the query string parameter `use_fabric=true` to get this maze rendered
-      using fabric.js.
-    <p>It seems that it is very slow. It's even unacceptably slow after I tried some
-      of the optimizations suggested
+    <p>Use the `use` query string parameter to determine how it is rendered:</p>
+    <ul>
+      <li>`native` - native canvas methods</li>
+      <li>`fabric` - fabric.js with rectangles</li>
+      <li>`paths` - fabric.js with paths -- the winner!</li>
+    </ul>
+    <p>When rendered with individual rectangles for each wall (my first attempt), 
+      it was unacceptably slow, even after I tried some of the optimizations suggested
       <a href='https://github.com/kangax/fabric.js/wiki/Optimizing-performance'>here</a>;
       viz., setting `object.selectable=false` on the rectangles, and
       `canvas.selection = false` on the canvas itself.</p>
-    <p>I thought of trying to use `path`s instead of rectangles, but decided not to
-      bother with the experiment, because from what I can tell, paths in fabric.js are always
-      closed polygons (unlike open, stroked things like they are in postscript) and always 
-      "objects" in the same sense that rectangles are, so they would, I think, be just
-      as slow.</p>
+    <p>I initially thought that paths would be no better, because in the tutorial, he only
+      discusses using them to make polygons.  But then I read a bit of the SVG spec, and
+      realized I could use a single polyline for the whole maze, with `fill: "none"`.
+      It is pretty fast.</p>
 
    <canvas id='canvas' width='1000' height='1000'></canvas>
 
