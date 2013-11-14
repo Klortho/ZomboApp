@@ -15,20 +15,11 @@
            url_params[decode(match[1])] = decode(match[2]);
     })();
 
-    var use_fabric = 'use_fabric' in url_params ? url_params.use_fabric == 'true' : false;
-
     // Canvas context
     var canvas;
     function init_canvas() {
-        if (use_fabric) {
-            canvas = new fabric.Canvas('canvas');
-        }
-        else {
-            var canvas_el = document.getElementById('canvas');
-            if (canvas_el.getContext) {
-                canvas = canvas_el.getContext('2d');
-            }
-        }
+        canvas = new fabric.Canvas('canvas');
+        canvas.selection = false;
     }
 
     var canvas_width = 1000,
@@ -50,6 +41,7 @@
         walls: []
     };
 
+    var fabric_path = '';
     function draw_maze() {
         var walls = maze.walls;
         var num_walls = walls.length;
@@ -59,6 +51,19 @@
                 draw_wall(w);
             }
         }
+
+        //console.info(fabric_path);
+        var path = new fabric.Path(fabric_path);
+        path.set({
+            left: canvas_width / 2 + maze.cell_width / 2,
+            top: canvas_height / 2 + maze.cell_height / 2,
+            selectable: false,
+            fill: "none",
+            stroke: color,
+            strokeWidth: wall_thickness,
+            strokeLineCap: 'round'
+        });
+        canvas.add(path);
     }
 
     function draw_wall(w) {
@@ -78,21 +83,11 @@
         var width  = o == "horizontal" ? cw + wt : wt;
         var height = o == "horizontal" ? wt : ch + wt;
 
-        if (use_fabric) {
-            left += (o == "horizontal" ? (cw + wt) / 2 : wt / 2);
-            top += (o == "horizontal" ? wt / 2 : (cw + wt) / 2);
-            canvas.add(new fabric.Rect({
-                left: left,
-                top: top,
-                width: width,
-                height: height,
-                fill: color
-            }));
-        }
-        else {
-            canvas.fillStyle = color;
-            canvas.fillRect(left, top, width, height);
-        }
+
+        fabric_path += 'M ' + left + ' ' + top + ' ' +
+            'l ' + (o == 'horizontal' ? cw : 0) + ' ' +
+                   (o == 'horizontal' ? 0 : cw) + ' ';
+
     }
 
 
