@@ -15,25 +15,15 @@ for example, would be an hexagonal array.
 
 If I ever have time, here is what I'd like to do.
 
-* Rewrite using some drawing library
-    - ✗ [Fabric.js](http://fabricjs.com/).
-        - Extremely slow, when I use it to instantiate all of the 200+
-          walls of the maze.  I don't see any way to tell it that these are "normal"
-          static, background thingies, and don't need to be full-fledged objects.
-          Compare [try-fabric/maze.html]() (native) with
-          [try-fabric/maze.html?use_fabric=true]().
-        - Can't use fabric and native methods together:  see
-          [try-fabric/native-and-fabric.html]().
-    - [Paper.js](http://paperjs.org/)
-    - Easel.js
+* ✓Rewrite using [Fabric.js](http://fabricjs.com/).
 
-* Add a sprite that takes discrete jumps from cell-to-cell, according to the
+* ✓Add a sprite that takes discrete jumps from cell-to-cell, according to the
   arrow keys.  It starts at start, of course, and the goal is to get it to the
   finish.  Optionally, let it leave a breadcrumb trail.
 
-* Allow it to be controlled by a touchscreen
-
 * Add sound-effects:  background music and "hooray" sound when you get to the finish.
+
+* Allow it to be controlled by a touchscreen
 
 * Make the sprite movement continuous.  When it hits a wall, make a "bong" sound.
 
