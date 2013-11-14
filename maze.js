@@ -83,13 +83,10 @@
         var width  = o == "horizontal" ? cw + wt : wt;
         var height = o == "horizontal" ? wt : ch + wt;
 
-
         fabric_path += 'M ' + left + ' ' + top + ' ' +
             'l ' + (o == 'horizontal' ? cw : 0) + ' ' +
                    (o == 'horizontal' ? 0 : cw) + ' ';
-
     }
-
 
     function make_maze() {
         var num_rows = maze.num_rows;
@@ -183,8 +180,6 @@
                 }
             }
         }
-        // If you want to see it work while debugging, uncomment:
-        //draw_maze();
 
         // Set the mole to a random place to start, and initialize start
         // and finish flags
@@ -263,6 +258,7 @@
                 if (dir == 'N') {
                     if (r == 0) {
                         got_start = true;
+                        maze.start_col = c;
                         if (!done_digging()) hop_mole();
                     }
                     else {
@@ -294,5 +290,132 @@
     $(function() {
         init_canvas();
         make_maze();
+        var nr = maze.num_rows,
+            nc = maze.num_cols,
+            wt = maze.wall_thickness,
+            cw = maze.cell_width,
+            ch = maze.cell_height,
+            cw_free = cw - wt,   // free space between walls
+            ch_free = ch - wt
+            start_col = maze.start_col;
+
+        var sprite;
+        var sprite_data = {
+            row: 0,
+            col: start_col,
+            dir: 'S'
+        };
+
+        // Call this function when the sprite image has finished loading
+        function sprite_loaded(oImg) {
+            sprite = oImg;
+            sprite.set({
+                left: maze.start_col * cw + (cw + wt) / 2,
+                top: (wt + ch) / 2,
+                width: cw_free * 0.8,
+                height: ch_free * 0.8,
+                angle: 180
+            });
+            canvas.add(sprite);
+            var animation_in_progress = false;
+
+            $('body').on('keydown', function(evt) {
+                console.info("evt = %o" , evt);
+                var k = evt.keyCode;
+                // Return if it's not one of the arrow keys
+                if (k < 37 || k > 40) return true;
+
+                // Return if our previous animation isn't finished yet
+                if (animation_in_progress) return false;
+
+                var dir,    // new direction
+                    prop,   // property to animate
+                    delta,  // amount to animate
+                    angle;  // angle of the image, in degrees
+
+                if (k == 37) {
+                    dir = 'W';
+                    prop = 'left';
+                    delta = '-=' + cw;
+                    angle = 270;
+                }
+                else if (k == 38) {
+                    dir = 'N';
+                    prop = 'top';
+                    delta = '-=' + ch;
+                    angle = 0;
+                }
+                else if (k == 39) {
+                    dir = 'E';
+                    prop = 'left';
+                    delta = '+=' + cw;
+                    angle = 90;
+                }
+                else {
+                    dir = 'S';
+                    prop = 'top';
+                    delta = '+=' + ch;
+                    angle = 180;
+                }
+
+                // Can we go that way?
+                var r = sprite_data.row,
+                    c = sprite_data.col;
+                if (maze.cells[r][c].walls[dir].exists ||
+                    c == 0 && dir == 'W' ||
+                    r == 0 && dir == 'N' ||
+                    c == nc - 1 && dir == 'E' ||
+                    r == nr - 1 && dir == 'S')
+                {
+                    console.info("sorry");
+                    return false;
+                }
+
+                if (dir == 'W')
+                    sprite_data.col--;
+                else if (dir == 'N')
+                    sprite_data.row--;
+                else if (dir == 'E')
+                    sprite_data.col++;
+                else
+                    sprite_data.row++;
+
+                console.info("dir = " + dir + ", prop = " + prop + ", delta = " + delta +
+                    ", angle = " + angle + ", new row = " + sprite_data.row +
+                    ", new col = " + sprite_data.col);
+
+                // Define a function that will handle the move (as opposed to the rotation)
+                var animate_move = function() {
+                    sprite.animate(prop, delta, {
+                        onChange: canvas.renderAll.bind(canvas),
+                        onComplete: function() {
+                            animation_in_progress = false;
+                        }
+                    });
+                }
+
+                // Do we need to change direction?
+                animation_in_progress = true;
+                if (sprite_data.dir != dir) {
+                    sprite_data.dir = dir;
+                    sprite.animate('angle', angle, {
+                        duration: 100,
+                        onChange: canvas.renderAll.bind(canvas),
+                        onComplete: animate_move
+                    });
+                }
+                else {
+                    animate_move();
+                }
+
+                return false;
+            });
+
+        };
+
+        // Load the sprite image and kick things off
+        fabric.Image.fromURL('ladybug_red-100.png', sprite_loaded);
+
+
     });
 })();
