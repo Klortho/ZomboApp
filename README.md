@@ -21,6 +21,11 @@ If I ever have time, here is what I'd like to do.
   arrow keys.  It starts at start, of course, and the goal is to get it to the
   finish.  Optionally, let it leave a breadcrumb trail.
 
+* ✓Tweak: when you're up against the wall, the bug should still change directions,
+  even though it can't move in that direction.
+
+* Leave breadcrumbs trail (optionally)
+
 * Add sound-effects:  background music and "hooray" sound when you get to the finish.
 
 * Allow it to be controlled by a touchscreen

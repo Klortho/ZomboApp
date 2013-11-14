@@ -52,11 +52,13 @@
             }
         }
 
-        //console.info(fabric_path);
+        console.info(fabric_path);
         var path = new fabric.Path(fabric_path);
         path.set({
-            left: canvas_width / 2 + maze.cell_width / 2,
-            top: canvas_height / 2 + maze.cell_height / 2,
+            originX: 'left',
+            originY: 'top',
+            left: 0,
+            top: 0,
             selectable: false,
             fill: "none",
             stroke: color,
@@ -85,7 +87,7 @@
 
         fabric_path += 'M ' + left + ' ' + top + ' ' +
             'l ' + (o == 'horizontal' ? cw : 0) + ' ' +
-                   (o == 'horizontal' ? 0 : cw) + ' ';
+                   (o == 'horizontal' ? 0 : ch) + ' ';
     }
 
     function make_maze() {
@@ -309,11 +311,12 @@
         // Call this function when the sprite image has finished loading
         function sprite_loaded(oImg) {
             sprite = oImg;
+            var size = Math.min(cw_free * 0.8, ch_free * 0.8);
             sprite.set({
                 left: maze.start_col * cw + (cw + wt) / 2,
                 top: (wt + ch) / 2,
-                width: cw_free * 0.8,
-                height: ch_free * 0.8,
+                width: size,
+                height: size,
                 angle: 180
             });
             canvas.add(sprite);
@@ -361,38 +364,40 @@
                 // Can we go that way?
                 var r = sprite_data.row,
                     c = sprite_data.col;
-                if (maze.cells[r][c].walls[dir].exists ||
-                    c == 0 && dir == 'W' ||
-                    r == 0 && dir == 'N' ||
-                    c == nc - 1 && dir == 'E' ||
-                    r == nr - 1 && dir == 'S')
-                {
-                    console.info("sorry");
-                    return false;
-                }
-
-                if (dir == 'W')
-                    sprite_data.col--;
-                else if (dir == 'N')
-                    sprite_data.row--;
-                else if (dir == 'E')
-                    sprite_data.col++;
-                else
-                    sprite_data.row++;
-
-                console.info("dir = " + dir + ", prop = " + prop + ", delta = " + delta +
-                    ", angle = " + angle + ", new row = " + sprite_data.row +
-                    ", new col = " + sprite_data.col);
+                var can_move = !(maze.cells[r][c].walls[dir].exists ||
+                                 c == 0 && dir == 'W' ||
+                                 r == 0 && dir == 'N' ||
+                                 c == nc - 1 && dir == 'E' ||
+                                 r == nr - 1 && dir == 'S');
+                console.info("can_move = " + can_move);
 
                 // Define a function that will handle the move (as opposed to the rotation)
-                var animate_move = function() {
-                    sprite.animate(prop, delta, {
-                        onChange: canvas.renderAll.bind(canvas),
-                        onComplete: function() {
-                            animation_in_progress = false;
-                        }
-                    });
-                }
+                var animate_move = can_move ?
+                    function() {
+                        if (dir == 'W')
+                            sprite_data.col--;
+                        else if (dir == 'N')
+                            sprite_data.row--;
+                        else if (dir == 'E')
+                            sprite_data.col++;
+                        else
+                            sprite_data.row++;
+
+                        sprite.animate(prop, delta, {
+                            onChange: canvas.renderAll.bind(canvas),
+                            onComplete: function() {
+                                animation_in_progress = false;
+                            }
+                        });
+                    } :
+                    function() {
+                        animation_in_progress = false;
+                        console.info("sorry");
+                    };
+
+                console.info("dir = " + dir + "\nprop = " + prop + "\ndelta = " + delta +
+                    "\nangle = " + angle + "\nnew row = " + sprite_data.row +
+                    "\nnew col = " + sprite_data.col);
 
                 // Do we need to change direction?
                 animation_in_progress = true;
