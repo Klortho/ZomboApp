@@ -1,7 +1,12 @@
 (function() {
 
     // Get the URL query string parameters
-    //
+    //   d - debug (defaults to "false")
+    //   r - number of rows
+    //   c - number of cols
+    //   wt - wall thickness
+    //   clr - wall color
+    //   tr - leave breadcrumb trail (default "true")
     var url_params;
     (window.onpopstate = function () {
         var match,
@@ -25,10 +30,12 @@
     var canvas_width = 1000,
         canvas_height = 1000;
 
-    var num_rows = 'r' in url_params ? url_params.r - 0 : 20,
+    var debug = 'd' in url_params ? url_params.d == 'true' : false,
+        num_rows = 'r' in url_params ? url_params.r - 0 : 20,
         num_cols = 'c' in url_params ? url_params.c - 0 : 20,
         wall_thickness = 'wt' in url_params ? url_params.wt - 0 : 10,
-        color = 'clr' in url_params ? url_params.clr : 'red';
+        color = 'clr' in url_params ? url_params.clr : 'red',
+        leave_trail = 'tr' in url_params ? !(url_params.tr == "false") : true;
 
     var maze = {
         num_rows: num_rows,
@@ -52,7 +59,7 @@
             }
         }
 
-        console.info(fabric_path);
+        if (debug) console.info(fabric_path);
         var path = new fabric.Path(fabric_path);
         path.set({
             originX: 'left',
@@ -298,8 +305,9 @@
             cw = maze.cell_width,
             ch = maze.cell_height,
             cw_free = cw - wt,   // free space between walls
-            ch_free = ch - wt
-            start_col = maze.start_col;
+            ch_free = ch - wt,
+            start_col = maze.start_col,
+            sprite_size = Math.min(cw_free * 0.8, ch_free * 0.8);
 
         var sprite;
         var sprite_data = {
@@ -308,13 +316,22 @@
             dir: 'S'
         };
 
+        // This function computes the `left` and `top`, given a cell row and col
+        function coords(row, col) {
+            return {
+                left: col * cw + (cw + wt)/2,
+                top: row * ch + (ch + wt)/2
+            };
+        }
+
         // Call this function when the sprite image has finished loading
         function sprite_loaded(oImg) {
             sprite = oImg;
-            var size = Math.min(cw_free * 0.8, ch_free * 0.8);
+            var size = sprite_size;
+            var start_coords = coords(0, maze.start_col);
             sprite.set({
-                left: maze.start_col * cw + (cw + wt) / 2,
-                top: (wt + ch) / 2,
+                left: start_coords.left,
+                top: start_coords.top,
                 width: size,
                 height: size,
                 angle: 180
@@ -323,7 +340,6 @@
             var animation_in_progress = false;
 
             $('body').on('keydown', function(evt) {
-                console.info("evt = %o" , evt);
                 var k = evt.keyCode;
                 // Return if it's not one of the arrow keys
                 if (k < 37 || k > 40) return true;
@@ -369,7 +385,7 @@
                                  r == 0 && dir == 'N' ||
                                  c == nc - 1 && dir == 'E' ||
                                  r == nr - 1 && dir == 'S');
-                console.info("can_move = " + can_move);
+                if (debug) console.info("can_move = " + can_move);
 
                 // Define a function that will handle the move (as opposed to the rotation)
                 var animate_move = can_move ?
@@ -389,15 +405,30 @@
                                 animation_in_progress = false;
                             }
                         });
+                        if (leave_trail && !maze.cells[r][c].seen) {
+                            if (debug) console.info("adding trail dot");
+                            var dot_coords = coords(r, c);
+                            var circle = new fabric.Circle({
+                                radius: sprite_size/5,
+                                fill: 'black',
+                                left: dot_coords.left,
+                                top: dot_coords.top
+                            });
+                            canvas.add(circle);
+                            canvas.sendToBack(circle);
+                            maze.cells[r][c].seen = true;
+                        }
                     } :
                     function() {
                         animation_in_progress = false;
-                        console.info("sorry");
+                        if (debug) console.info("sorry");
                     };
 
-                console.info("dir = " + dir + "\nprop = " + prop + "\ndelta = " + delta +
+                if (debug) {
+                    console.info("dir = " + dir + "\nprop = " + prop + "\ndelta = " + delta +
                     "\nangle = " + angle + "\nnew row = " + sprite_data.row +
                     "\nnew col = " + sprite_data.col);
+                }
 
                 // Do we need to change direction?
                 animation_in_progress = true;

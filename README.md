@@ -24,7 +24,9 @@ If I ever have time, here is what I'd like to do.
 * ✓Tweak: when you're up against the wall, the bug should still change directions,
   even though it can't move in that direction.
 
-* Leave breadcrumbs trail (optionally)
+* ✓Leave breadcrumbs trail (optionally)
+
+* Add an option to buffer keyboard strokes (default: "false")
 
 * Add sound-effects:  background music and "hooray" sound when you get to the finish.
 
