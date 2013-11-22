@@ -1,13 +1,16 @@
 (function() {
 
     // Get the URL query string parameters
-    //   d - debug (defaults to "false")
-    //   r - number of rows
-    //   c - number of cols
-    //   wt - wall thickness
-    //   clr - wall color
-    //   tr - leave breadcrumb trail (default "true")
-    var url_params;
+    // Initialize with defaults
+    var url_params = {
+        d:   false,  // debug
+        r:   20,     // number of rows
+        c:   20,     // number of cols
+        wt:  10,     // wall thickness
+        clr: 'red',  // wall color
+        nt:  false,  // don't leave breadcrumb trail
+        s:   5       // speed, from 0 - 9
+    };
     (window.onpopstate = function () {
         var match,
             pl     = /\+/g,  // Regex for replacing addition symbol with a space
@@ -15,12 +18,51 @@
             decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
             query  = window.location.search.substring(1);
 
-        url_params = {};
-        while (match = search.exec(query))
-           url_params[decode(match[1])] = decode(match[2]);
+        while (match = search.exec(query)) {
+            var k = decode(match[1]);
+            var v = decode(match[2]).toLowerCase();
+            if (k in url_params) {
+                var t = typeof url_params[k];
+                if (t == 'boolean') {
+                    var first = v.substring(0, 1);
+                    url_params[k] = (first == 't' || first == 'y');
+                }
+                else if (t == 'number') {
+                    url_params[k] = v - 0;
+                }
+                else {  // string
+                    url_params[k] = v;
+                }
+            }
+        }
     })();
 
-    // Canvas context
+    // Initialize a bunch of stuff derived from the url params
+    var debug = url_params.d,
+        num_rows = url_params.r,
+        num_cols = url_params.c,
+        wall_thickness = url_params.wt,
+        color = url_params.clr,
+        leave_trail = !url_params.nt,
+        speed = Math.min(Math.max(url_params.s, 0), 9),
+        anim_duration_move = 5 + speed * 100,  // speed of animation
+        anim_duration_turn = anim_duration_move / 5;
+    if (debug) console.info("speed is " + speed);
+
+    // Function to make the form sticky.  This is called on document load
+    function make_form_sticky() {
+        // Make the form sticky:
+        $('#r').val(num_rows);
+        $('#c').val(num_cols);
+        $('#wt').val(wall_thickness);
+        $('#clr').val(color);
+        $('#s').val(url_params.s);
+        $('#nt').prop('checked', url_params.nt);
+
+    }
+
+
+    // Initialize canvas context
     var canvas;
     function init_canvas() {
         canvas = new fabric.Canvas('canvas');
@@ -30,12 +72,6 @@
     var canvas_width = 1000,
         canvas_height = 1000;
 
-    var debug = 'd' in url_params ? url_params.d == 'true' : false,
-        num_rows = 'r' in url_params ? url_params.r - 0 : 20,
-        num_cols = 'c' in url_params ? url_params.c - 0 : 20,
-        wall_thickness = 'wt' in url_params ? url_params.wt - 0 : 10,
-        color = 'clr' in url_params ? url_params.clr : 'red',
-        leave_trail = 'tr' in url_params ? !(url_params.tr == "false") : true;
 
     var maze = {
         num_rows: num_rows,
@@ -103,12 +139,6 @@
         var num_cells = num_rows * num_cols;
         var cells = maze.cells;
         var walls = maze.walls;
-
-        // Make the form sticky:
-        $('#r').val(num_rows);
-        $('#c').val(num_cols);
-        $('#wt').val(wall_thickness);
-        $('#clr').val(color);
 
         // First initialize the two-dimensional array of the cell objects
         for (var r = 0; r < num_rows; ++r) {
@@ -298,6 +328,7 @@
     // document ready function
     $(function() {
         init_canvas();
+        make_form_sticky();
         make_maze();
         var nr = maze.num_rows,
             nc = maze.num_cols,
@@ -400,6 +431,7 @@
                             sprite_data.row++;
 
                         sprite.animate(prop, delta, {
+                            duration: anim_duration_move,
                             onChange: canvas.renderAll.bind(canvas),
                             onComplete: function() {
                                 animation_in_progress = false;
@@ -435,7 +467,7 @@
                 if (sprite_data.dir != dir) {
                     sprite_data.dir = dir;
                     sprite.animate('angle', angle, {
-                        duration: 100,
+                        duration: anim_duration_turn,
                         onChange: canvas.renderAll.bind(canvas),
                         onComplete: animate_move
                     });

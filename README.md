@@ -15,16 +15,7 @@ for example, would be an hexagonal array.
 
 If I ever have time, here is what I'd like to do.
 
-* ✓Rewrite using [Fabric.js](http://fabricjs.com/).
-
-* ✓Add a sprite that takes discrete jumps from cell-to-cell, according to the
-  arrow keys.  It starts at start, of course, and the goal is to get it to the
-  finish.  Optionally, let it leave a breadcrumb trail.
-
-* ✓Tweak: when you're up against the wall, the bug should still change directions,
-  even though it can't move in that direction.
-
-* ✓Leave breadcrumbs trail (optionally)
+* Add a speed option
 
 * Add an option to buffer keyboard strokes (default: "false")
 
