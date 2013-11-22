@@ -20,7 +20,6 @@ $(function() {
             audio_context.decodeAudioData(request.response,
                 function(buffer) {  // success
                     console.info("decoded");
-                    boing_buffer = buffer;
                     playSound(buffer);
                 },
                 function() {  // error
@@ -30,8 +29,6 @@ $(function() {
         }
         request.send();
     }
-
-    var boing_buffer = null;
 
     function playSound(buffer) {
         var source = audio_context.createBufferSource();

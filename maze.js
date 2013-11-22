@@ -9,7 +9,8 @@
         wt:  10,     // wall thickness
         clr: 'red',  // wall color
         nt:  false,  // don't leave breadcrumb trail
-        s:   5       // speed, from 0 - 9
+        s:   5,      // speed, from 0 - 9
+        ns:  false   // don't play sound effects
     };
     (window.onpopstate = function () {
         var match,
@@ -46,7 +47,8 @@
         leave_trail = !url_params.nt,
         speed = Math.min(Math.max(url_params.s, 0), 9),
         anim_duration_move = 5 + speed * 100,  // speed of animation
-        anim_duration_turn = anim_duration_move / 5;
+        anim_duration_turn = anim_duration_move / 5,
+        no_sound = url_params.ns;
     if (debug) console.info("speed is " + speed);
 
     // Function to make the form sticky.  This is called on document load
@@ -58,7 +60,7 @@
         $('#clr').val(color);
         $('#s').val(url_params.s);
         $('#nt').prop('checked', url_params.nt);
-
+        $('#ns').prop('checked', url_params.ns);
     }
 
 
@@ -72,6 +74,54 @@
     var canvas_width = 1000,
         canvas_height = 1000;
 
+    // Create audio context object
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    var audio_context = window.AudioContext ? new AudioContext() : null;
+
+    // Load the sounds
+    var sounds = {
+        boing: {
+            filename: 'try-audio/Boing-Low.mp3',
+            buffer: null
+        }
+    };
+    if (!no_sound) {
+        for (var sk in sounds) {
+            console.info("Loading " + sk);
+            var sound = sounds[sk];
+            var request = new XMLHttpRequest();
+            request.open('GET', sound.filename, true);
+            request.responseType = 'arraybuffer';
+            request.onload = function() {
+                audio_context.decodeAudioData(request.response,
+                    function(buffer) {  // success
+                        console.info("decoded");
+                        sound.buffer = buffer;
+                    },
+                    function() {  // error
+                        console.info("error trying to decode audio data");
+                    }
+                );
+            }
+            request.send();
+        }
+    }
+    function playSound(sound) {
+        if (no_sound) return;
+        var source = audio_context.createBufferSource();
+        source.buffer = sounds[sound].buffer;
+        source.connect(audio_context.destination);
+        source.start(0);
+    }
+
+  /*
+    function p() {
+        console.info("playing");
+        playSound('boing');
+        window.setTimeout(p, 5000);
+    }
+    window.setTimeout(p, 5000);
+  */
 
     var maze = {
         num_rows: num_rows,
@@ -417,6 +467,7 @@
                                  c == nc - 1 && dir == 'E' ||
                                  r == nr - 1 && dir == 'S');
                 if (debug) console.info("can_move = " + can_move);
+                if (!can_move) playSound('boing');
 
                 // Define a function that will handle the move (as opposed to the rotation)
                 var animate_move = can_move ?
@@ -483,7 +534,5 @@
 
         // Load the sprite image and kick things off
         fabric.Image.fromURL('ladybug_red-100.png', sprite_loaded);
-
-
     });
 })();

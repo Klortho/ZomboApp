@@ -15,11 +15,17 @@ for example, would be an hexagonal array.
 
 If I ever have time, here is what I'd like to do.
 
-* Add a speed option
+* Add sound-effects:
+    * First add some simple sound effects, without regard to the quality of the sounds
+      themselves.  Get the API working.
+    * Boing sound when you hit the wall
+    * Celebration sound when you get to the finish.
+    * background music
+
+* ✓Add a speed option
 
 * Add an option to buffer keyboard strokes (default: "false")
 
-* Add sound-effects:  background music and "hooray" sound when you get to the finish.
 
 * Allow it to be controlled by a touchscreen
 
