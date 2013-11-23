@@ -20,15 +20,14 @@ If I ever have time, here is what I'd like to do.
       themselves.  Get the API working.
     * ✓Boing sound when you hit the wall
     * ✓Squink when it hops
-    * Celebration sound when you get to the finish.
+    * ✓Celebration sound when you get to the finish.
     * background music
 
 * ✓Add a speed option
-
 * ✓Fix the rotation between 0 - 270
+* ✗Add an option to buffer keyboard strokes (default: "false") - no, use the speed control instead.
 
-* Add an option to buffer keyboard strokes (default: "false")
-
+* Fix it so that only one sound effect plays at a time.
 
 * Allow it to be controlled by a touchscreen
 
