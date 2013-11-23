@@ -83,27 +83,42 @@
         boing: {
             filename: 'try-audio/Boing-Low.mp3',
             buffer: null
+        },
+        squink: {
+            filename: 'try-audio/squink.mp3',
+            buffer: null
+        },
+        goal: {
+            filename: 'try-audio/goal.mp3',
+            buffer: null
         }
     };
     if (!no_sound) {
-        for (var sk in sounds) {
-            console.info("Loading " + sk);
-            var sound = sounds[sk];
-            var request = new XMLHttpRequest();
-            request.open('GET', sound.filename, true);
-            request.responseType = 'arraybuffer';
-            request.onload = function() {
-                audio_context.decodeAudioData(request.response,
-                    function(buffer) {  // success
-                        console.info("decoded");
-                        sound.buffer = buffer;
-                    },
-                    function() {  // error
-                        console.info("error trying to decode audio data");
-                    }
-                );
-            }
-            request.send();
+        for (var sn in sounds) {
+            console.info("Loading " + sn);
+
+            // Use an IIFE to make sure each request gets saved independently
+            (function() {
+                var request = new XMLHttpRequest();
+                request.sound_name = sn;   // Save the sound name in the request object
+                request.open('GET', sounds[sn].filename, true);
+                request.responseType = 'arraybuffer';
+
+                request.onload = function() {
+                    var _sn = this.sound_name;
+                    console.info("Got " + _sn);
+                    audio_context.decodeAudioData(request.response,
+                        function(buffer) {  // success
+                            console.info("Successfully decoded " + _sn);
+                            sounds[_sn].buffer = buffer;
+                        },
+                        function() {  // error
+                            console.info("Error trying to decode audio data: " + _sn);
+                        }
+                    );
+                }
+                request.send();
+            })();
         }
     }
     function playSound(sound) {
@@ -360,6 +375,7 @@
                 else if (dir == 'S') {
                     if (r == num_rows - 1) {
                         got_finish = true;
+                        cell.finish = true;
                         if (!done_digging()) hop_mole();
                     }
                     else {
@@ -431,7 +447,8 @@
                 var dir,    // new direction
                     prop,   // property to animate
                     delta,  // amount to animate
-                    angle;  // angle of the image, in degrees
+                    angle,  // angle of the image, in degrees
+                    new_cell;
 
                 if (k == 37) {
                     dir = 'W';
@@ -458,20 +475,38 @@
                     angle = 180;
                 }
 
-                // Can we go that way?
+                // Where are we, and can we go the way he wants?
                 var r = sprite_data.row,
-                    c = sprite_data.col;
-                var can_move = !(maze.cells[r][c].walls[dir].exists ||
-                                 c == 0 && dir == 'W' ||
-                                 r == 0 && dir == 'N' ||
-                                 c == nc - 1 && dir == 'E' ||
-                                 r == nr - 1 && dir == 'S');
+                    c = sprite_data.col,
+                    cell = maze.cells[r][c],
+                    can_move = false,
+                    new_cell = null;
+
+                if (!cell.walls[dir].exists) {
+                    if (dir == 'W' && c != 0) {
+                        can_move = true;
+                        new_cell = maze.cells[r][c-1];
+                    }
+                    else if (dir == 'N' && r != 0) {
+                        can_move = true;
+                        new_cell = maze.cells[r-1][c];
+                    }
+                    else if (dir == 'E' && c != nc - 1) {
+                        can_move = true;
+                        new_cell = maze.cells[r][c+1];
+                    }
+                    else if (dir == 'S' && r != nr - 1) {
+                        can_move = true;
+                        new_cell = maze.cells[r+1][c];
+                    }
+                }
                 if (debug) console.info("can_move = " + can_move);
                 if (!can_move) playSound('boing');
 
                 // Define a function that will handle the move (as opposed to the rotation)
                 var animate_move = can_move ?
                     function() {
+                        playSound('squink');
                         if (dir == 'W')
                             sprite_data.col--;
                         else if (dir == 'N')
@@ -486,9 +521,10 @@
                             onChange: canvas.renderAll.bind(canvas),
                             onComplete: function() {
                                 animation_in_progress = false;
+                                if (new_cell.finish) playSound('goal');
                             }
                         });
-                        if (leave_trail && !maze.cells[r][c].seen) {
+                        if (leave_trail && !cell.seen) {
                             if (debug) console.info("adding trail dot");
                             var dot_coords = coords(r, c);
                             var circle = new fabric.Circle({
@@ -516,6 +552,16 @@
                 // Do we need to change direction?
                 animation_in_progress = true;
                 if (sprite_data.dir != dir) {
+
+                    // These next checks fix the problem when you rotate between 0 and 270 degrees,
+                    // to make sure it doesn't go the long way around
+                    if (sprite_data.dir == 'N' && dir == 'W') {
+                        sprite.set('angle', 360);
+                    }
+                    else if (sprite_data.dir == 'W' && dir == 'N') {
+                        sprite.set('angle', -90);
+                    }
+
                     sprite_data.dir = dir;
                     sprite.animate('angle', angle, {
                         duration: anim_duration_turn,

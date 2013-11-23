@@ -18,11 +18,14 @@ If I ever have time, here is what I'd like to do.
 * Add sound-effects:
     * First add some simple sound effects, without regard to the quality of the sounds
       themselves.  Get the API working.
-    * Boing sound when you hit the wall
+    * ✓Boing sound when you hit the wall
+    * ✓Squink when it hops
     * Celebration sound when you get to the finish.
     * background music
 
 * ✓Add a speed option
+
+* ✓Fix the rotation between 0 - 270
 
 * Add an option to buffer keyboard strokes (default: "false")
 
