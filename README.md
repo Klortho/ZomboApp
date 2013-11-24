@@ -15,28 +15,37 @@ for example, would be an hexagonal array.
 
 If I ever have time, here is what I'd like to do.
 
-* Add sound-effects:
+* Add sound-effects
     * First add some simple sound effects, without regard to the quality of the sounds
       themselves.  Get the API working.
-    * ✓Boing sound when you hit the wall
-    * ✓Squink when it hops
-    * ✓Celebration sound when you get to the finish.
-    * background music
+    * What's the best way to add background music?
+    * Edit the hooray sound so it starts right away (now, there's a noticeable
+      delay)
+    *
 
-* ✓Add a speed option
-* ✓Fix the rotation between 0 - 270
-* ✗Add an option to buffer keyboard strokes (default: "false") - no, use the speed control instead.
+* Tweaks:
+    * When you try to move, but you're blocked by a wall, the
+    * Make "jump easing" sticky
+    * Invert the speed values:  9 should be fast, 0 slow.
 
-* Fix it so that only one sound effect plays at a time.
+* Make the form fields, when possible, dynamic.  E.g., unchecking sound
+  should turn sound off right away.
+
+* Animate the legs.  See notes [here](http://chrismaloney.org/notes/Fabric.js#sprites)
+
+* Fix it so that only one sound effect plays at a time.  (Maybe not)
 
 * Allow it to be controlled by a touchscreen
-
-* Make the sprite movement continuous.  When it hits a wall, make a "bong" sound.
 
 * (Maybe) If using the arrow keys, add asteroids-like physics:  when you press an
   arrow key, the sprite *accelerates* in that direction.
 
-* Implement a score: number of seconds, plus a penalty every time you hit a wall.
+* Implement a timer and scoring mechanism.
+    * Start with the highest possible score for a maze, computed based on
+      its size.  E.g. 10X10 == 100 pts.  Then, penalties for:
+    * Fixed amount every second.
+    * At the end, any dots that are not on the main path,
+    * Every time you hit a wall.
 
 * Implement invisible walls:  there are two options (implement both):
     * sighted:  the walls in the sprite's line of sight are made visible
