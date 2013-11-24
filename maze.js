@@ -10,7 +10,8 @@
         clr: 'red',  // wall color
         nt:  false,  // don't leave breadcrumb trail
         s:   5,      // speed, from 0 - 9
-        ns:  false   // don't play sound effects
+        ns:  false,  // don't play sound effects
+        je:  'easeInSine'   // jump easing (http://fabricjs.com/animation-easing/)
     };
     (window.onpopstate = function () {
         var match,
@@ -21,11 +22,12 @@
 
         while (match = search.exec(query)) {
             var k = decode(match[1]);
-            var v = decode(match[2]).toLowerCase();
+            var v = decode(match[2]);
+            vlc = v.toLowerCase();
             if (k in url_params) {
                 var t = typeof url_params[k];
                 if (t == 'boolean') {
-                    var first = v.substring(0, 1);
+                    var first = vlc.substring(0, 1);
                     url_params[k] = (first == 't' || first == 'y');
                 }
                 else if (t == 'number') {
@@ -48,7 +50,8 @@
         speed = Math.min(Math.max(url_params.s, 0), 9),
         anim_duration_move = 5 + speed * 100,  // speed of animation
         anim_duration_turn = anim_duration_move / 5,
-        no_sound = url_params.ns;
+        no_sound = url_params.ns,
+        jump_easing = url_params.je;
     if (debug) console.info("speed is " + speed);
 
     // Function to make the form sticky.  This is called on document load
@@ -95,7 +98,7 @@
     };
     if (!no_sound) {
         for (var sn in sounds) {
-            console.info("Loading " + sn);
+            if (debug) console.info("Loading " + sn);
 
             // Use an IIFE to make sure each request gets saved independently
             (function() {
@@ -106,14 +109,13 @@
 
                 request.onload = function() {
                     var _sn = this.sound_name;
-                    console.info("Got " + _sn);
                     audio_context.decodeAudioData(request.response,
                         function(buffer) {  // success
-                            console.info("Successfully decoded " + _sn);
+                            if (debug) console.info("Successfully decoded " + _sn);
                             sounds[_sn].buffer = buffer;
                         },
                         function() {  // error
-                            console.info("Error trying to decode audio data: " + _sn);
+                            if (debug) console.info("Error trying to decode audio data: " + _sn);
                         }
                     );
                 }
@@ -516,9 +518,14 @@
                         else
                             sprite_data.row++;
 
+                        if (debug) {
+                            console.info("Setting easing to " + jump_easing + ", %o",
+                                         fabric.util.ease[jump_easing]);
+                        }
                         sprite.animate(prop, delta, {
                             duration: anim_duration_move,
                             onChange: canvas.renderAll.bind(canvas),
+                            easing: fabric.util.ease[jump_easing],
                             onComplete: function() {
                                 animation_in_progress = false;
                                 if (new_cell.finish) playSound('goal');
