@@ -1,11 +1,12 @@
-Stuff for Zombo's Amusement
-===========================
+Stuff for Amusement
+===================
 
+Deployed [here](http://chrismaloney.org/wumzom/index.html)
 
 
 ## Maze generator
 
-[See it live](http://chrismaloney.org/ZomboApp/maze.html)
+[See it live](http://chrismaloney.org/wumzom/maze.html)
 
 A maze comprises cells and walls.  For simplicity, to get started, we'll
 just do a maze from a 2d rectangular array of square cells.  Another possibility,
