@@ -22,12 +22,21 @@ If I ever have time, here is what I'd like to do.
     * What's the best way to add background music?
     * Edit the hooray sound so it starts right away (now, there's a noticeable
       delay)
-    *
+    * Find better sounds
+
+* Initialize the canvas to the size of the viewport.  Then, scale the maze accordingly.
+  This suggests another option, a switch to specify how the rows X cols size is
+  determined:
+    - fixed: dependent options are rows and cols
+    - adjustable: maze size according to the size and shape of the canvas:
+      dependent options would be density and the cell aspect ratio
 
 * Tweaks:
     * When you try to move, but you're blocked by a wall, the
     * Make "jump easing" sticky
     * Invert the speed values:  9 should be fast, 0 slow.
+    * Add some kind of star at the finish cell
+    * Once you reach the finish, game is over - disable keys.
 
 * Make the form fields, when possible, dynamic.  E.g., unchecking sound
   should turn sound off right away.
