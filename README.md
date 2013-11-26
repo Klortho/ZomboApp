@@ -16,6 +16,8 @@ for example, would be an hexagonal array.
 
 If I ever have time, here is what I'd like to do.
 
+* Fix for IE; right now, it is broken.
+
 * Add sound-effects
     * First add some simple sound effects, without regard to the quality of the sounds
       themselves.  Get the API working.
