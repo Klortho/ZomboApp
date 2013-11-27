@@ -18,6 +18,8 @@ If I have time, here is what I'd like to do.
 
 * Find better sounds, background music (something liberally licensed!)
 
+* Fix for IE; right now, it is broken.
+
 * Initialize the canvas to the size of the viewport.  Then, scale the maze accordingly.
   This suggests another option, a switch to specify how the rows X cols size is
   determined:
