@@ -81,6 +81,11 @@
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     var audio_context = window.AudioContext ? new AudioContext() : null;
 
+
+    // The music_controller, for the background music, will be initialized after
+    // page load.
+    var music_controller;
+
     // Load the sounds
     var sounds = {
         boing: {
@@ -97,6 +102,8 @@
         }
     };
     if (!no_sound) {
+        var start_loading_sounds = new Date().getTime();
+        if (debug) console.info("Starting to load sounds, " + start_loading_sounds);
         for (var sn in sounds) {
             if (debug) console.info("Loading " + sn);
 
@@ -395,6 +402,13 @@
 
     // document ready function
     $(function() {
+
+        // Prepare the background music
+        var music_elem = $('#audio');
+        music_controller = new MediaController;
+        music_elem[0].controller = music_controller;
+        music_controller.volume = 0.4;
+
         init_canvas();
         make_form_sticky();
         make_maze();
@@ -445,6 +459,10 @@
 
                 // Return if our previous animation isn't finished yet
                 if (animation_in_progress) return false;
+
+                // Start the music if it isn't playing already
+                if (!no_sound && music_controller.playbackState != 'playing')
+                    music_controller.play();
 
                 var dir,    // new direction
                     prop,   // property to animate

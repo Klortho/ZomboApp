@@ -14,15 +14,9 @@ for example, would be an hexagonal array.
 
 ### To do
 
-If I ever have time, here is what I'd like to do.
+If I have time, here is what I'd like to do.
 
-* Add sound-effects
-    * First add some simple sound effects, without regard to the quality of the sounds
-      themselves.  Get the API working.
-    * What's the best way to add background music?
-    * Edit the hooray sound so it starts right away (now, there's a noticeable
-      delay)
-    * Find better sounds
+* Find better sounds, background music (something liberally licensed!)
 
 * Initialize the canvas to the size of the viewport.  Then, scale the maze accordingly.
   This suggests another option, a switch to specify how the rows X cols size is
