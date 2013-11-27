@@ -48,7 +48,7 @@
         color = url_params.clr,
         leave_trail = !url_params.nt,
         speed = Math.min(Math.max(url_params.s, 0), 9),
-        anim_duration_move = 5 + speed * 100,  // speed of animation
+        anim_duration_move = 5 + (9 - speed) * 100,  // speed of animation
         anim_duration_turn = anim_duration_move / 5,
         no_sound = url_params.ns,
         jump_easing = url_params.je;
