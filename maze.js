@@ -50,7 +50,9 @@
         speed = Math.min(Math.max(url_params.s, 0), 9),
         anim_duration_move = 5 + (9 - speed) * 100,  // speed of animation
         anim_duration_turn = anim_duration_move / 5,
-        no_sound = url_params.ns,
+        //no_sound = url_params.ns,
+        // Turn sound off, because MediaController isn't supported by any browsers anymore
+        no_sound = true,
         jump_easing = url_params.je;
     if (debug) console.info("speed is " + speed);
 
@@ -405,9 +407,9 @@
 
         // Prepare the background music
         var music_elem = $('#audio');
-        music_controller = new MediaController;
-        music_elem[0].controller = music_controller;
-        music_controller.volume = 0.4;
+        //music_controller = new MediaController;
+        //music_elem[0].controller = music_controller;
+        //music_controller.volume = 0.4;
 
         init_canvas();
         make_form_sticky();
@@ -461,8 +463,8 @@
                 if (animation_in_progress) return false;
 
                 // Start the music if it isn't playing already
-                if (!no_sound && music_controller.playbackState != 'playing')
-                    music_controller.play();
+                //if (!no_sound && music_controller.playbackState != 'playing')
+                //    music_controller.play();
 
                 var dir,    // new direction
                     prop,   // property to animate
