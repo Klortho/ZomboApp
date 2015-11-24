@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <style>
+      div {
+        overflow: auto;
+        width: 820px;
+        max-width: 820px;
+        height: 500px;
+        max-height: 500px;
+        border: 1px solid blue;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Drawing a Sierpinski triangle!</h1>
+    <div>
+      <svg width='800' height='1000'
+        xmlns='http://www.w3.org/2000/svg'
+        xmlns:xlink='http://www.w3.org/1999/xlink'>
+      </svg>
+    </div>
+
+    <script>
+      var last_row = [],
+          width = 800,
+          r = 6,
+          this_row = [],
+          row_num = 0,
+          col_num = 0,
+          tick = 10;       // milliseconds
+      var svg = d3.select('svg');
+      driver();
+
+      function driver() {
+        draw_dot(row_num, col_num);
+        col_num++;
+        if (col_num > row_num) {
+          last_row = this_row;
+          this_row = [];
+          col_num = 0;
+          row_num++;
+        }
+        window.setTimeout(driver, tick);
+      }
+
+      function draw_dot(row_num, col_num) {
+        var val = col_num == 0 || col_num == row_num ? 1 :
+          last_row[col_num - 1] == last_row[col_num] ? 0 : 1;
+        this_row.push(val);
+        if (val) {
+          svg.append('circle')
+            .attr({
+              cx: width/2 + (col_num - row_num/2) * r,
+              cy: (row_num+1) * r,
+              r: r/2,
+            })
+            .style({
+              fill: "black",
+            })
+        }
+      }
+    </script>
+  </body>
+</html>
